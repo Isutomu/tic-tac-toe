@@ -18,7 +18,7 @@ const gameboard = (function() {
         }
         return false;
     };
-    const updateGameboard = (playerNumber) => {
+    const updateGameboard = (playerNumber, x, y) => {
         gameboardTiles[x][y] = playerNumber; 
     };
     const getGameboard = () => gameboardTiles;
@@ -61,6 +61,11 @@ const gameController = (function() {
     const resetSession = () => {
         players['1'].resetScore();
         players['2'].resetScore();
+        const player1Score = document.querySelector('.player-score.player1');
+        const player2Score = document.querySelector('.player-score.player2');
+        player1Score.textContent = '0';
+        player2Score.textContent = '0';
+
         gameboard.resetGameboard();
         currentFirstPlayer = '1';
         currentPlayer = currentFirstPlayer;
@@ -115,6 +120,9 @@ const gameController = (function() {
     };
     const gameWon = () => {
         players[currentPlayer].increaseScore();
+        const playerScore = document.querySelector(`.player-score.player${currentPlayer}`);
+        playerScore.textContent = players[currentPlayer].getScore();
+
         updateCurrentFirstPlayer();
         gameboard.resetGameboard();
     }
@@ -148,3 +156,34 @@ function createPlayer(playerName, playerSymbol) {
         resetScore
     }
 }
+
+const players = {
+    '1': createPlayer('Player1', 'X'),
+    '2': createPlayer('Player2', 'O')
+}
+
+const colorBtn = document.querySelector('.theme-color');
+colorBtn.addEventListener('click', (e) => {
+    gameboard.setTileColor(e.target.value);
+});
+
+const newgameBtn = document.querySelector('.btn-newgame');
+newgameBtn.addEventListener('click', () => {
+    gameboard.resetGameboard();
+    gameController.updateCurrentFirstPlayer();
+});
+
+const resetBtn = document.querySelector('.btn-reset');
+resetBtn.addEventListener('click', () => {
+    gameController.resetSession();
+});
+
+const player1Name = document.querySelector('.player-name.player1');
+player1Name.addEventListener('onchange', () => {
+    players['1'].name = player1Name.value;
+});
+
+const player2Name = document.querySelector('.player-name.player2');
+player1Name.addEventListener('onchange', () => {
+    players['2'].name = player1Name.value;
+});
