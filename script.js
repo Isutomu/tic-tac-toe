@@ -166,24 +166,46 @@ const colorBtn = document.querySelector('.theme-color');
 colorBtn.addEventListener('click', (e) => {
     gameboard.setTileColor(e.target.value);
 });
-
 const newgameBtn = document.querySelector('.btn-newgame');
 newgameBtn.addEventListener('click', () => {
     gameboard.resetGameboard();
     gameController.updateCurrentFirstPlayer();
 });
-
 const resetBtn = document.querySelector('.btn-reset');
 resetBtn.addEventListener('click', () => {
     gameController.resetSession();
 });
-
 const player1Name = document.querySelector('.player-name.player1');
 player1Name.addEventListener('onchange', () => {
     players['1'].name = player1Name.value;
 });
-
 const player2Name = document.querySelector('.player-name.player2');
 player1Name.addEventListener('onchange', () => {
     players['2'].name = player1Name.value;
 });
+
+function onTileClick(e) {
+    tileBtn = e.target;
+    tileBtn.disabled = true;
+    tileBtn.textContent = players[gameController.getCurrentPlayer()].symbol;
+    gameboard.updateGameboard(
+        gameController.getCurrentPlayer(),
+        Number(tileBtn.dataset.row),
+        Number(tileBtn.dataset.column)
+    );
+    gameController.checkGameStatus();
+}
+
+const gameboardHtml = document.querySelector('.gameboard');
+(function() {
+    for (let i=0; i<3; i++) {
+        for (let j=0; j<3; j++) {
+            const tileBtn = document.createElement('button');
+            tileBtn.classList.add('btn-tile');
+            tileBtn.setAttribute('data-row', String(i));
+            tileBtn.setAttribute('data-column', String(j));
+            tileBtn.addEventListener('click', (e) => onTileClick(e));
+            gameboardHtml.appendChild(tileBtn);
+        }
+    }
+})();
