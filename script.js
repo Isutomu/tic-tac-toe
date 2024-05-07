@@ -130,3 +130,21 @@ const gameController = (function() {
         newGame
     };
 })();
+
+function createPlayer(playerName, playerSymbol) {
+    let name = playerName;
+    let symbol = playerSymbol;
+    let score = 0;
+
+    const increaseScore = () => ++score;
+    const getScore = () => score;
+    const resetScore = () => {score = 0;};
+
+    return {
+        name,
+        symbol,
+        increaseScore,
+        getScore,
+        resetScore
+    }
+}
