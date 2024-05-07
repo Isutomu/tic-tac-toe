@@ -1,15 +1,7 @@
-const gameboard = (function() {
-    let tileColor; //color format???
-    let symbolColor; //color format???
-    const gameboardTiles = [];
-    resetGameboard();
+"use strict";
 
-    const getTileColor = () => tileColor;
-    const setTileColor = (newColor) => {
-        tileColor = newColor;
-        symbolColor = newColor;; //calculate complementary color + color format???
-    };
-    const getSymbolColor = () => symbolColor;
+const gameboard = (function() {
+    const gameboardTiles = [];
 
     const isGameboardFull = () => {
         const tilesOccupied = gameboardTiles.map((tile) => tile!= '' ? 1 : 0).reduce((sum, tile) => sum + tile);
@@ -26,22 +18,25 @@ const gameboard = (function() {
         for (let i=0; i<3; i++) {
             gameboardTiles[i] = ['', '', ''];
         }
+        const tileBtns = Array(...document.querySelectorAll('.btn-tile'));
+        for (let btn of tileBtns) {
+            btn.textContent = '';
+        }
     }
 
     return {
-        getTileColor,
-        setTileColor,
-        getSymbolColor,
         isGameboardFull,
         updateGameboard,
         getGameboard,
         resetGameboard
     };
 })();
+gameboard.resetGameboard();
 
 const gameController = (function() {
     let currentFirstPlayer = '1';
     let currentPlayer = currentFirstPlayer;
+    let gameDone = false;
 
     const getCurrentPlayer = () => currentPlayer;
     const updateCurrentFirstPlayer = () => {
@@ -50,6 +45,9 @@ const gameController = (function() {
     };
 
     const checkGameStatus = () => {
+        if (gameDone) {
+            return;
+        }
         if(checkIfWinner()) {
             gameWon();
         } else if (gameboard.isGameboardFull()) {
@@ -69,18 +67,28 @@ const gameController = (function() {
         gameboard.resetGameboard();
         currentFirstPlayer = '1';
         currentPlayer = currentFirstPlayer;
+        enableTileBtns();
+        gameDone = false;
     }
     const newGame = () => {
         gameboard.resetGameboard();
         updateCurrentFirstPlayer();
+        enableTileBtns();
+        gameDone = false;
     }
 
+    const enableTileBtns = () => {
+        const tileBtns = Array(...document.querySelectorAll('.btn-tile'));
+        for (let btn of tileBtns) {
+            btn.disabled = false;
+        }
+    }
     const checkIfWinner = () => {
         const combinations = [];
         const gameboardTiles = gameboard.getGameboard();
 
         // rows combinations
-        combinations.push(...gameboardTiles.map(row => ''.concat(row)));
+        combinations.push(...gameboardTiles.map(row => row.join('')));
 
         // columns combinations
         const columnsCombined = (function() {
@@ -90,7 +98,7 @@ const gameController = (function() {
                     gameboardRotated[j][i] = gameboardTiles[i][j];
                 }
             }
-            return gameboardRotated.map(row => ''.concat(row));
+            return gameboardRotated.map(row => row.join(''));
         })();
         combinations.push(...columnsCombined);
 
@@ -123,16 +131,15 @@ const gameController = (function() {
         const playerScore = document.querySelector(`.player-score.player${currentPlayer}`);
         playerScore.textContent = players[currentPlayer].getScore();
 
-        updateCurrentFirstPlayer();
-        gameboard.resetGameboard();
+        gameDone = true;
     }
     const gameTie = () => {
-        updateCurrentFirstPlayer();
-        gameboard.resetGameboard();
+        gameDone = true;
     }
 
     return {
         getCurrentPlayer,
+        updateCurrentFirstPlayer,
         checkGameStatus,
         resetSession,
         newGame
@@ -162,30 +169,25 @@ const players = {
     '2': createPlayer('Player2', 'O')
 }
 
-const colorBtn = document.querySelector('.theme-color');
-colorBtn.addEventListener('click', (e) => {
-    gameboard.setTileColor(e.target.value);
-});
 const newgameBtn = document.querySelector('.btn-newgame');
 newgameBtn.addEventListener('click', () => {
-    gameboard.resetGameboard();
-    gameController.updateCurrentFirstPlayer();
+    gameController.newGame();
 });
 const resetBtn = document.querySelector('.btn-reset');
 resetBtn.addEventListener('click', () => {
     gameController.resetSession();
 });
 const player1Name = document.querySelector('.player-name.player1');
-player1Name.addEventListener('onchange', () => {
+player1Name.addEventListener('change', () => {
     players['1'].name = player1Name.value;
 });
 const player2Name = document.querySelector('.player-name.player2');
-player1Name.addEventListener('onchange', () => {
-    players['2'].name = player1Name.value;
+player2Name.addEventListener('change', () => {
+    players['2'].name = player2Name.value;
 });
 
 function onTileClick(e) {
-    tileBtn = e.target;
+    const tileBtn = e.target;
     tileBtn.disabled = true;
     tileBtn.textContent = players[gameController.getCurrentPlayer()].symbol;
     gameboard.updateGameboard(
