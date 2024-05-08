@@ -61,8 +61,8 @@ const gameController = (function() {
         players['2'].resetScore();
         const player1Score = document.querySelector('.player-score.player1');
         const player2Score = document.querySelector('.player-score.player2');
-        player1Score.textContent = '0';
-        player2Score.textContent = '0';
+        player1Score.value = '0';
+        player2Score.value = '0';
 
         gameboard.resetGameboard();
         currentFirstPlayer = '1';
@@ -129,7 +129,7 @@ const gameController = (function() {
     const gameWon = () => {
         players[currentPlayer].increaseScore();
         const playerScore = document.querySelector(`.player-score.player${currentPlayer}`);
-        playerScore.textContent = players[currentPlayer].getScore();
+        playerScore.value = players[currentPlayer].getScore();
 
         gameDone = true;
     }
